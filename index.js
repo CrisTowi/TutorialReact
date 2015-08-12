@@ -13,6 +13,10 @@ app.get('/', function(req, res){
 	res.render('tutorial1');
 });
 
+app.get('/reddit', function(req, res){
+  res.render('reddit');
+});
+
 var server = app.listen(3000, function() {
 	console.log('Escuchando en el puerto 3000');
 });

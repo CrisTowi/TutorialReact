@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 
-$(document).ready(function(){
+$(document).ready(function() {
 
 	GeneralComponent = React.createClass({
 		getInitialState: function() {
