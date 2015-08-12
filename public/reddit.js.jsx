@@ -19,8 +19,9 @@ $(document).ready(function() {
       var content;
       if(this.state.data) {
         content = this.state.data.map(function(element, index){
+          console.log(element.data);
           return (
-            <li>
+            <li key={element.data.id}>
               <a href={element.data.url}>
                 {element.data.title}
               </a>
