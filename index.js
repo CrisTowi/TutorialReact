@@ -17,6 +17,10 @@ app.get('/reddit', function(req, res){
   res.render('reddit');
 });
 
+app.get('/d3', function(req, res){
+  res.render('d3');
+});
+
 var server = app.listen(3000, function() {
 	console.log('Escuchando en el puerto 3000');
 });
