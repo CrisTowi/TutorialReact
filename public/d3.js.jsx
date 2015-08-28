@@ -56,9 +56,7 @@ $(document).ready(function() {
 
       var xScale = d3.time.scale()
         .domain([new Date(minDate), new Date(maxDate)])
-        .range([0, 780]);
-
-      console.log(minMax);
+        .range([0, 680]);
 
       var yScale = d3.scale.linear()
         .domain([
@@ -97,7 +95,7 @@ $(document).ready(function() {
     renderBarras: function() {
       var data = this.props.data;
       var _this = this;
-      console.log(data);
+
       this.conf.gContent
         .selectAll('rect')
         .data(data)
@@ -107,12 +105,12 @@ $(document).ready(function() {
           return _this.conf.xScale(new Date(d.fecha));
         })
         .attr('height', function(d, i) {
-          return _this.conf.yScale(d.valor); 
+          return _this.conf.yScale(d.valor);
         })
         .attr('width', 10)
         .style('fill', 'orange')
         .attr('y', function(d, i) {
-          return 0;
+          return 380 - (_this.conf.yScale(d.valor));
         });
     },
     render: function() {
