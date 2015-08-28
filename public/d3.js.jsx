@@ -5,10 +5,9 @@ function getRandomInt(min, max) {
 }
 
 $(document).ready(function() {
-  //Define los datos para la gráfica
+  //Define los datos aleatorios con fechas subsecuentes para la gráfica
   var data = [];
   var tamanio = 20;
-  var neg = 1;
 
   for (var i = 0; i < tamanio; i++) {
     data.push({
@@ -19,20 +18,8 @@ $(document).ready(function() {
 
   //Crea el componente
   D3ChartComponent = React.createClass({
-    componentDidMount: function() {
-      this.inciarGrafica();
-      this.renderEjes();
-      this.renderBarras();
-    },
-    inciarGrafica: function() {
-      var svg = this.refs.chart.getDOMNode();
-      this.conf = {};
-
-      this.conf.svg = d3.select(svg)
-        .attr('height', 400)
-        .attr('width', 800);
-
-    },
+    //Calcula el valor mínimo y máximo del arreglo para definir 
+    //dominio de las gráficas
     getMinMax: function() {
       var data = this.props.data;
       var menor = 0;
@@ -48,23 +35,54 @@ $(document).ready(function() {
 
       return ([menor, mayor]);
     },
-    renderEjes: function() {
-      var data = this.props.data;
-      var minDate = this.props.data[0].fecha;
-      var maxDate = this.props.data[this.props.data.length - 1].fecha;
-      var minMax = this.getMinMax();
+    //Valores por default del props
+    getDefaultProps: function() {
+      return ({
+        margin: {
+          bottom: 10,
+          left: 60,
+          right: 60,
+          top: 10,
+        },
+        height: 400,
+        width: 800,
+      });
+    },
+    componentDidMount: function() {
+      //Manda a llamar a todas las funciones necesarias para la gráfica
+      this.inciarGrafica();
+      this.renderEjes();
+      this.renderBarras();
+    },
+    inciarGrafica: function() {
+      var svg = this.refs.chart.getDOMNode();
+      this.conf = {};
 
+      this.conf.svg = d3.select(svg)
+        .attr('height', this.props.height)
+        .attr('width', this.props.width);
+    },
+    renderEjes: function() {
+      var data =        this.props.data;
+      var minDate =     this.props.data[0].fecha;
+      var maxDate =     this.props.data[this.props.data.length - 1].fecha;
+      var minMax =      this.getMinMax();
+      var scaleWidth =  this.props.width - this.props.margin.left - this.props.margin.right;
+      var scaleHeigth = this.props.height - this.props.margin.top - this.props.margin.bottom;
+
+      //Define las escalas con sus rangos y dominios de valores
       var xScale = d3.time.scale()
         .domain([new Date(minDate), new Date(maxDate)])
-        .range([0, 680]);
+        .range([0, scaleWidth]);
 
       var yScale = d3.scale.linear()
         .domain([
           minMax[1],
           minMax[0],
         ])
-        .range([0, 380]);
+        .range([0, scaleHeigth]);
 
+      //Define la configuración de los ejes (ticks y posición)
       var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient('bottom');
@@ -73,29 +91,31 @@ $(document).ready(function() {
         .scale(yScale)
         .orient('left');
 
-      //Append graphic container
+      //Agrega contenedor de gráfica
       var gContent = this.conf.svg
         .append('g')
-        .attr('class', 'g-content')
         .attr('transform', 'translate(60, -10)');
 
-      var xaxisLine = gContent.append('g')
+      //Dibuja las lineas de las gráficas
+      gContent.append('g')
         .attr('class', 'x axis')
         .attr('transform', 'translate(0, 380)')
         .call(xAxis);
 
-      var yaxisLine = gContent.append('g')
+      gContent.append('g')
         .attr('class', 'y axis')
         .call(yAxis);
 
-        this.conf.xScale = xScale;
-        this.conf.yScale = yScale;
-        this.conf.gContent = gContent;
+      this.conf.xScale =    xScale;
+      this.conf.yScale =    yScale;
+      this.conf.gContent =  gContent;
     },
     renderBarras: function() {
-      var data = this.props.data;
-      var _this = this;
+      var _this =       this;
+      var data =        this.props.data;
+      var scaleHeigth = this.props.height - this.props.margin.top - this.props.margin.bottom;
 
+      //Agrega las barras (Una por cada elemento del arreglo data)
       this.conf.gContent
         .selectAll('rect')
         .data(data)
@@ -107,10 +127,10 @@ $(document).ready(function() {
         .attr('height', function(d, i) {
           return _this.conf.yScale(d.valor);
         })
-        .attr('width', 10)
+        .attr('width', 20)
         .style('fill', 'orange')
         .attr('y', function(d, i) {
-          return 380 - (_this.conf.yScale(d.valor));
+          return scaleHeigth - (_this.conf.yScale(d.valor));
         });
     },
     render: function() {
@@ -121,7 +141,7 @@ $(document).ready(function() {
     }
   });
 
-  //Manda a renderear el component Chart
+  //Manda a renderear el component Chart con 'data' como props
   React.render(
     <D3ChartComponent 
       data={data} />,
